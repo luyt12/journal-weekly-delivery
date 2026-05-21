@@ -8,6 +8,10 @@ on:
 jobs:
   push:
     runs-on: ubuntu-latest
+    env:
+      FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+      FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+      FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_RECEIVE_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

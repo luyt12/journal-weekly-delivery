@@ -188,21 +188,7 @@ async function sendArticle(token, article, index, total, issueDate) {
   }
 
   // 使用 post 类型消息（富文本）
-  const content = {
-    post: {
-      zh_cn: {
-        title: `${article.title}`,
-        content: [
-          [
-            { tag: 'text', text: `📰 The Economist ${issueDate} · ${index}/${total}\n\n` }
-          ],
-          [
-            { tag: 'text', text: text }
-          ]
-        ]
-      }
-    }
-  };
+  const content = { text: `📰 The Economist ${issueDate} · ${index}/${total}\n\n${article.title}\n\n${text}` };
 
   await sendFeishuMessage(token, 'post', content);
 }

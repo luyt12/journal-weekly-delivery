@@ -89,7 +89,7 @@
       "issue": "2026.05.16",
       "dayNum": 5,
       "file": "data/issues/2026.05.16/day-5.epub",
-      "sent": false,
+      "sent": true,
       "articles": [
         "The strange Japanese companies minting money from AI",
         "Companies are making big bucks from immigration crackdowns",
@@ -104,7 +104,8 @@
         "How to share the AI windfall",
         "Why many women cannot make enough breast milk",
         "Neanderthals went to the dentist (really)"
-      ]
+      ],
+      "sentAt": "2026-05-21T14:46:22.967Z"
     },
     "2026-05-22": {
       "issue": "2026.05.16",
@@ -125,5 +126,5 @@
       ]
     }
   },
-  "lastUpdated": "2026-05-21T14:24:56.802Z"
+  "lastUpdated": "2026-05-21T14:46:22.967Z"
 }

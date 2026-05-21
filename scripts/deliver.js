@@ -8,8 +8,9 @@
  * 3. 解压 EPUB
  * 4. 解析文章列表（读 toc.ncx）
  * 5. 获取飞书 tenant_access_token
- * 6. 发送文章列表到飞书
- * 7. 更新 state.json
+ * 6. 上传 EPUB 文件到飞书
+ * 7. 发送文件消息 + 文本消息
+ * 8. 更新 state.json
  * 
  * 环境变量：
  *   FEISHU_APP_ID
@@ -20,7 +21,6 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
-const http = require('http');
 const { execSync } = require('child_process');
 
 // ============ 配置 ============
@@ -38,7 +38,7 @@ const EXTRACT_DIR = path.join(SKILL_DIR, 'extracted');
 // HTTP(S) GET 请求（带重定向跟随）
 function httpGet(url, maxRedirects = 5) {
   return new Promise((resolve, reject) => {
-    const proto = url.startsWith('https') ? https : http;
+    const proto = url.startsWith('https') ? https : require('http');
     
     proto.get(url, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
@@ -64,6 +64,282 @@ function httpGet(url, maxRedirects = 5) {
 // 延迟
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ============ 飞书 API ============
+
+// 获取 tenant_access_token
+function getTenantAccessToken() {
+  return new Promise((resolve, reject) => {
+    const postData = JSON.stringify({
+      app_id: APP_ID,
+      app_secret: APP_SECRET
+    });
+    
+    const options = {
+      hostname: 'open.feishu.cn',
+      port: 443,
+      path: '/open-apis/auth/v3/tenant_access_token/internal',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+    
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          if (result.code === 0) {
+            resolve(result.tenant_access_token);
+          } else {
+            reject(new Error(`获取 token 失败: ${result.msg} (code: ${result.code})`));
+          }
+        } catch (e) {
+          reject(new Error(`解析 token 响应失败: ${e.message}`));
+        }
+      });
+    });
+    
+    req.on('error', (e) => reject(e));
+    req.write(postData);
+    req.end();
+  });
+}
+
+// 上传文件到飞书（获取 file_key）
+// 参考 feishu_upload.py 的 upload_file_as_message()
+function uploadFile(token, filePath) {
+  return new Promise((resolve, reject) => {
+    const fileName = path.basename(filePath);
+    const fileSize = fs.statSync(filePath).size;
+    
+    // 读取文件内容
+    const fileContent = fs.readFileSync(filePath);
+    
+    // 构造 multipart/form-data
+    const boundary = '----FormBoundary' + Date.now().toString(16);
+    
+    const parts = [];
+    // file_type
+    parts.push(Buffer.from(
+      `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="file_type"\r\n\r\n` +
+      `stream\r\n`
+    ));
+    // file_name
+    parts.push(Buffer.from(
+      `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="file_name"\r\n\r\n` +
+      `${fileName}\r\n`
+    ));
+    // file
+    parts.push(Buffer.from(
+      `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n` +
+      `Content-Type: application/epub+zip\r\n\r\n`
+    ));
+    parts.push(fileContent);
+    parts.push(Buffer.from(`\r\n--${boundary}--\r\n`));
+    
+    const body = Buffer.concat(parts);
+    
+    const options = {
+      hostname: 'open.feishu.cn',
+      port: 443,
+      path: '/open-apis/im/v1/files',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+        'Content-Length': body.length
+      }
+    };
+    
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          if (result.code === 0) {
+            resolve(result.data.file_key);
+          } else {
+            reject(new Error(`上传文件失败: ${result.msg} (code: ${result.code})`));
+          }
+        } catch (e) {
+          reject(new Error(`解析上传响应失败: ${e.message}`));
+        }
+      });
+    });
+    
+    req.on('error', (e) => reject(e));
+    req.write(body);
+    req.end();
+  });
+}
+
+// 发送文件消息
+// 参考 feishu_upload.py 的 send_file_message()
+function sendFileMessage(token, fileKey) {
+  return new Promise((resolve, reject) => {
+    const postData = JSON.stringify({
+      receive_id: RECEIVE_ID,
+      msg_type: 'file',
+      content: JSON.stringify({ file_key: fileKey })
+    });
+    
+    const options = {
+      hostname: 'open.feishu.cn',
+      port: 443,
+      path: '/open-apis/im/v1/messages?receive_id_type=open_id',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+    
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          if (result.code === 0) {
+            resolve(result.data);
+          } else {
+            reject(new Error(`发送文件消息失败: ${result.msg} (code: ${result.code})`));
+          }
+        } catch (e) {
+          reject(new Error(`解析文件消息响应失败: ${e.message}`));
+        }
+      });
+    });
+    
+    req.on('error', (e) => reject(e));
+    req.write(postData);
+    req.end();
+  });
+}
+
+// 发送文本消息
+function sendTextMessage(token, text) {
+  return new Promise((resolve, reject) => {
+    const postData = JSON.stringify({
+      receive_id: RECEIVE_ID,
+      msg_type: 'text',
+      content: JSON.stringify({ text: text })
+    });
+    
+    const options = {
+      hostname: 'open.feishu.cn',
+      port: 443,
+      path: '/open-apis/im/v1/messages?receive_id_type=open_id',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+    
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          if (result.code === 0) {
+            resolve(result.data);
+          } else {
+            reject(new Error(`发送文本消息失败: ${result.msg} (code: ${result.code})`));
+          }
+        } catch (e) {
+          reject(new Error(`解析文本消息响应失败: ${e.message}`));
+        }
+      });
+    });
+    
+    req.on('error', (e) => reject(e));
+    req.write(postData);
+    req.end();
+  });
+}
+
+// 发送卡片消息
+function sendCardMessage(token, articleCount, editionDate) {
+  return new Promise((resolve, reject) => {
+    const msgContent = {
+      config: { wide_screen_mode: true },
+      header: {
+        title: { tag: 'plain_text', content: '📰 《经济学人》周刊已推送' },
+        template: 'blue'
+      },
+      elements: [
+        {
+          tag: 'div',
+          text: {
+            tag: 'lark_md',
+            content: `📅 **${editionDate}**\n共 **${articleCount}** 篇文章`
+          }
+        },
+        {
+          tag: 'div',
+          text: {
+            tag: 'lark_md',
+            content: 'EPUB 文件已发送到您的飞书，请查收。'
+          }
+        }
+      ]
+    };
+    
+    const postData = JSON.stringify({
+      receive_id: RECEIVE_ID,
+      msg_type: 'interactive',
+      content: JSON.stringify(msgContent)
+    });
+    
+    const options = {
+      hostname: 'open.feishu.cn',
+      port: 443,
+      path: '/open-apis/im/v1/messages?receive_id_type=open_id',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+    
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          if (result.code === 0) {
+            resolve(result.data);
+          } else {
+            // 卡片消息失败不阻断流程
+            console.log(`⚠️  卡片消息发送失败（不阻断）: ${result.msg} (code: ${result.code})`);
+            resolve(null);
+          }
+        } catch (e) {
+          console.log(`⚠️  卡片消息解析失败: ${e.message}`);
+          resolve(null);
+        }
+      });
+    });
+    
+    req.on('error', (e) => reject(e));
+    req.write(postData);
+    req.end();
+  });
 }
 
 // ============ 核心功能 ============
@@ -245,92 +521,6 @@ function listHtmlFiles(extractDir) {
   }));
 }
 
-// 获取 tenant_access_token
-function getTenantAccessToken() {
-  return new Promise((resolve, reject) => {
-    const postData = JSON.stringify({
-      app_id: APP_ID,
-      app_secret: APP_SECRET
-    });
-    
-    const options = {
-      hostname: 'open.feishu.cn',
-      port: 443,
-      path: '/open-apis/auth/v3/tenant_access_token/internal',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData)
-      }
-    };
-    
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        try {
-          const result = JSON.parse(data);
-          if (result.code === 0) {
-            resolve(result.tenant_access_token);
-          } else {
-            reject(new Error(`获取 token 失败: ${result.msg} (code: ${result.code})`));
-          }
-        } catch (e) {
-          reject(new Error(`解析 token 响应失败: ${e.message}`));
-        }
-      });
-    });
-    
-    req.on('error', (e) => reject(e));
-    req.write(postData);
-    req.end();
-  });
-}
-
-// 发送文本消息
-function sendTextMessage(token, text) {
-  return new Promise((resolve, reject) => {
-    const postData = JSON.stringify({
-      receive_id: RECEIVE_ID,
-      msg_type: 'text',
-      content: JSON.stringify({ text: text })
-    });
-    
-    const options = {
-      hostname: 'open.feishu.cn',
-      port: 443,
-      path: '/open-apis/im/v1/messages?receive_id_type=open_id',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'Content-Length': Buffer.byteLength(postData)
-      }
-    };
-    
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        try {
-          const result = JSON.parse(data);
-          if (result.code === 0) {
-            resolve(result.data);
-          } else {
-            reject(new Error(`发送消息失败: ${result.msg} (code: ${result.code})`));
-          }
-        } catch (e) {
-          reject(new Error(`解析发送响应失败: ${e.message}`));
-        }
-      });
-    });
-    
-    req.on('error', (e) => reject(e));
-    req.write(postData);
-    req.end();
-  });
-}
-
 // 主函数
 async function main() {
   console.log('========================================');
@@ -381,17 +571,28 @@ async function main() {
     const token = await getTenantAccessToken();
     console.log('✅ Token 获取成功');
     
-    // 7. 发送消息
-    console.log('\n📤 发送消息到飞书...');
+    // 7. 上传 EPUB 文件
+    console.log('\n📤 上传 EPUB 到飞书...');
+    const fileKey = await uploadFile(token, epubPath);
+    console.log(`✅ 文件上传成功，file_key: ${fileKey}`);
     
-    // 构建文章列表消息
-    const articleList = articles.slice(0, 20).map((a, i) => `  ${i+1}. ${a.title}`).join('\n');
-    const message = `📰 《经济学人》${editionDate} 已发布\n\n共 ${articles.length} 篇文章，本期推荐：\n${articleList}\n\n📚 完整内容请阅读 EPUB 文件`;
+    // 8. 发送文件消息
+    console.log('📤 发送文件消息...');
+    await sendFileMessage(token, fileKey);
+    console.log('✅ 文件消息发送成功');
     
-    await sendTextMessage(token, message);
-    console.log('✅ 消息发送成功');
+    // 9. 发送文本消息（文章列表节选）
+    console.log('📤 发送文本消息...');
+    const articleList = articles.slice(0, 15).map((a, i) => `  ${i+1}. ${a.title}`).join('\n');
+    const textMessage = `📰 **《经济学人》${editionDate} 已发布**\n\n共 ${articles.length} 篇文章，本期推荐：\n${articleList}\n\n📚 完整 EPUB 文件已发送到您的飞书。`;
+    await sendTextMessage(token, textMessage);
+    console.log('✅ 文本消息发送成功');
     
-    // 8. 更新 state.json
+    // 10. 发送卡片通知
+    console.log('📤 发送卡片通知...');
+    await sendCardMessage(token, articles.length, editionDate);
+    
+    // 11. 更新 state.json
     state = {
       edition_date: editionDate,
       downloaded_at: new Date().toISOString(),
@@ -418,4 +619,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { getTenantAccessToken, sendTextMessage, parseArticles };
+module.exports = { getTenantAccessToken, uploadFile, sendFileMessage, sendTextMessage, parseArticles };

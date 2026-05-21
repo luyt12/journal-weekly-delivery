@@ -190,7 +190,7 @@ async function sendArticle(token, article, index, total, issueDate) {
   // 使用 post 类型消息（富文本）
   const content = { text: `📰 The Economist ${issueDate} · ${index}/${total}\n\n${article.title}\n\n${text}` };
 
-  await sendFeishuMessage(token, 'post', content);
+  await sendFeishuMessage(token, 'text', content);
 }
 
 main().catch(e => {

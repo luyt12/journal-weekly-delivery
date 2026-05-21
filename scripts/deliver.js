@@ -128,10 +128,9 @@ async function uploadFile(token, filePath) {
   const formData = new FormData();
   formData.append('file_type', 'stream');
   formData.append('file_name', fileName);
-  formData.append('file', fs.createReadStream(filePath), {
-    filename: fileName,
-    contentType: 'application/epub+zip'
-  });
+  const fileBuffer = fs.readFileSync(filePath);
+  const blob = new Blob([fileBuffer], { type: 'application/epub+zip' });
+  formData.append('file', blob, fileName);
   
   console.log('   发送请求到 /open-apis/im/v1/files...');
   

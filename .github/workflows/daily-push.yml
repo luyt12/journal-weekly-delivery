@@ -2,36 +2,23 @@ name: Economist Daily Push
 
 on:
   schedule:
-    # 每天 04:00 UTC = 12:00 北京时间
-    - cron: '0 4 * * *'
+    - cron: '0 0 * * 0-5'  # Sun-Fri 00:00 UTC = 08:00 CST
   workflow_dispatch:
 
 jobs:
   push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Run daily push script
-        env:
-          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
-          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
-          FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_RECEIVE_ID }}
+      - name: Run daily push
         run: node scripts/daily-push.js
-
-      - name: Commit schedule update
+      - name: Commit schedule
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add data/schedule.json
-          git diff --cached --quiet || git commit -m "chore: update schedule after daily push"
+          git diff --cached --quiet || git commit -m "daily: mark batch sent"
           git push

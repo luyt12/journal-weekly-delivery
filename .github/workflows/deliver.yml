@@ -2,36 +2,25 @@ name: Economist Weekly - Saturday Extract
 
 on:
   schedule:
-    # 每周六 00:00 UTC = 08:00 北京时间
-    - cron: '0 0 * * 6'
+    - cron: '0 0 * * 6'   # Saturday 00:00 UTC = 08:00 CST
   workflow_dispatch:
 
 jobs:
   extract:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Run extract script
-        env:
-          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
-          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
-          FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_RECEIVE_ID }}
+      - name: Install deps
+        run: npm install jszip
+      - name: Run deliver script
         run: node scripts/deliver.js
-
-      - name: Commit data files
+      - name: Commit data
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add data/
-          git diff --cached --quiet || git commit -m "docs: extract articles for ${GITHUB_DATE:-latest} issue"
+          git diff --cached --quiet || git commit -m "weekly: split EPUB into daily batches"
           git push

@@ -1,0 +1,47 @@
+name: 经济学人周刊推送
+
+on:
+  schedule:
+    # 每周六 08:00 北京时间 = 00:00 UTC
+    - cron: '0 0 * * 6'
+  workflow_dispatch:  # 允许手动触发
+
+# 需要 contents: write 权限来提交 state.json
+permissions:
+  contents: write
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout 仓库
+        uses: actions/checkout@v4
+      
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 安装依赖
+        run: |
+          # Ubuntu 自带 unzip，无需安装
+          echo "✅ unzip 已可用"
+          which unzip
+      
+      - name: 运行推送脚本
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_RECEIVE_ID: ${{ secrets.FEISHU_RECEIVE_ID }}
+        run: |
+          node scripts/deliver.js
+      
+      - name: 提交 state.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          git diff --staged --quiet || (git commit -m "chore: update state.json after delivery" && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

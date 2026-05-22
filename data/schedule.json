@@ -111,7 +111,7 @@
       "issue": "2026.05.16",
       "dayNum": 6,
       "file": "data/issues/2026.05.16/day-6.epub",
-      "sent": false,
+      "sent": true,
       "articles": [
         "AI models are being used to predict conflict",
         "Do houseplants improve air quality?",
@@ -123,8 +123,9 @@
         "The AI that transformed American warfare",
         "Economic data, commodities and markets",
         "Raghu Rai’s whole canvas was India"
-      ]
+      ],
+      "sentAt": "2026-05-22T04:08:40.012Z"
     }
   },
-  "lastUpdated": "2026-05-21T14:46:22.967Z"
+  "lastUpdated": "2026-05-22T04:08:40.012Z"
 }

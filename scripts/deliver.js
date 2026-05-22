@@ -106,8 +106,16 @@ function parseTocNcx(xml) {
 
 function extractImageSrcs(html) {
   const srcs = [];
-  for (const m of html.matchAll(/src\s*=\s*"([^"]+\.(jpe?g|png|gif|svg|webp))"/gi))
+  // Match src="..." and src='...' for images (broader extension support)
+  for (const m of html.matchAll(/src\s*=\s*["']([^"']+\.(jpe?g|png|gif|svg|webp|bmp|tiff?))["']/gi))
     srcs.push(m[1]);
+  // Also match srcset attributes (responsive images)
+  for (const m of html.matchAll(/srcset\s*=\s*["']([^"']+)["']/gi)) {
+    for (const entry of m[1].split(',')) {
+      const url = entry.trim().split(/\s+/)[0];
+      if (url.match(/\.(jpe?g|png|gif|svg|webp|bmp|tiff?)($|\?)/i)) srcs.push(url);
+    }
+  }
   return srcs;
 }
 
@@ -145,6 +153,7 @@ async function parseEpubStructure(zip) {
 }
 
 // ─── Collect image refs from an HTML file ──────────────
+// FIX: Use path.posix.join() instead of path.posix.resolve() to avoid absolute path issues
 
 async function collectImageRefs(zip, manifest, opfDir, idref, keepSet) {
   const item = manifest[idref];
@@ -154,7 +163,8 @@ async function collectImageRefs(zip, manifest, opfDir, idref, keepSet) {
   if (!f) return;
   const html = await f.async('string');
   for (const src of extractImageSrcs(html)) {
-    const resolved = path.posix.resolve(path.posix.dirname(item.href), src);
+    // Resolve relative to the HTML file's directory (relative to OPF dir)
+    const resolved = path.posix.join(path.posix.dirname(item.href), src);
     keepSet.add(path.posix.join(opfDir, resolved));
   }
 }

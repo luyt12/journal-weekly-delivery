@@ -5,7 +5,7 @@
       "issue": "2026.05.23",
       "dayNum": 1,
       "file": "data/issues/2026.05.23/day-1.epub",
-      "sent": true,
+      "sent": false,
       "articles": [
         "Politics",
         "Business",
@@ -21,13 +21,13 @@
         "Even by Trumpian standards, a $1.8bn fund for friends is bad",
         "Drained by war with Iran, America is stalling deliveries of arms to Europe"
       ],
-      "sentAt": "2026-05-24T01:39:20.095Z"
+      "sentAt": null
     },
     "2026-05-25": {
       "issue": "2026.05.23",
       "dayNum": 2,
       "file": "data/issues/2026.05.23/day-2.epub",
-      "sent": true,
+      "sent": false,
       "articles": [
         "America’s sermons are becoming op-eds",
         "Democratic primary voters chose a dicey candidate for Georgia governor",
@@ -43,7 +43,7 @@
         "India’s diplomats are hosting the world",
         "Overseas Chinese risk losing their oldest institutions"
       ],
-      "sentAt": "2026-05-25T04:19:04.247Z"
+      "sentAt": null
     },
     "2026-05-26": {
       "issue": "2026.05.23",

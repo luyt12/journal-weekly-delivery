@@ -47,7 +47,7 @@
       "issue": "2026.05.23",
       "dayNum": 3,
       "file": "data/issues/2026.05.23/day-3.epub",
-      "sent": false,
+      "sent": true,
       "articles": [
         "Vladimir Putin’s turn with Xi Jinping",
         "How China quietly helps Russia in Ukraine",
@@ -62,7 +62,8 @@
         "Who are Europe’s newest troublemakers?",
         "Real Madrid’s boss calls an election",
         "How Europe is fighting for digital sovereignty"
-      ]
+      ],
+      "sentAt": "2026-05-26T13:37:57.610Z"
     },
     "2026-05-27": {
       "issue": "2026.05.23",
@@ -126,5 +127,5 @@
       ]
     }
   },
-  "lastUpdated": "2026-05-26T13:31:28.518Z"
+  "lastUpdated": "2026-05-26T13:37:57.610Z"
 }

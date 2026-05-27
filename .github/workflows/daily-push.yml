@@ -26,14 +26,14 @@ jobs:
   deliver:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Install dependencies
-        run: npm install jszip
+        run: npm install
       - name: Fetch and split magazine
         run: |
           ARGS="${{ github.event.inputs.magazine }}"
@@ -45,7 +45,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add data/schedule.json data/fetched.json
+          git add data/schedule.json data/fetched.json data/issues/
           git diff --cached --quiet || git commit -m "fetched: ${{ github.event.inputs.magazine }} issue"
           git push
       - name: Push to Feishu
@@ -59,7 +59,7 @@ jobs:
           # Extract issue date from schedule.json
           DATE="${{ github.event.inputs.date }}"
           if [ -z "$DATE" ]; then
-            DATE=$(node -e "const s=JSON.parse(require('fs').readFileSync('data/schedule.json','utf8'));const m=s.magazines[MAG];if(!m)process.exit(1);const dates=Object.keys(m).sort().reverse();console.log(dates[0])" 2>/dev/null)
+            DATE=$(node -e "const s=JSON.parse(require('fs').readFileSync('data/schedule.json','utf8'));const m=s.magazines['$MAG'];if(!m)process.exit(1);const dates=Object.keys(m).sort().reverse();console.log(dates[0])" 2>/dev/null)
           fi
           if [ -n "$DATE" ]; then
             node scripts/daily-push.js "$MAG" "$DATE"

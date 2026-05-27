@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * Economist Daily Push
- * Reads today's EPUB from data/, uploads to Feishu, sends file message.
+ * Journal Push
+ * Sends all chunk EPUBs for a magazine issue on the same day.
+ * Usage:
+ *   node daily-push.js <magazine> <date>
+ *   node daily-push.js economist 2026.05.23
  */
 
 const fs = require('fs');
@@ -59,18 +62,34 @@ async function sendMsg(token, msgType, content) {
   return d;
 }
 
+// ─── Magazine display names ────────────────────────────
+
+const DISPLAY_NAMES = {
+  economist: 'The Economist',
+  new_yorker: 'New Yorker',
+  atlantic: 'The Atlantic',
+  wired: 'Wired'
+};
+
 // ─── Main ──────────────────────────────────────────────
 
 async function main() {
-  console.log('=== Economist Daily Push ===');
+  const magKey = process.argv[2];
+  const issueDate = process.argv[3];
+
+  if (!magKey || !issueDate) {
+    console.error('Usage: node daily-push.js <magazine> <date>');
+    console.error('  magazine: economist | new_yorker | atlantic | wired');
+    console.error('  date: e.g. 2026.05.23');
+    process.exit(1);
+  }
+
+  console.log(`=== ${DISPLAY_NAMES[magKey] || magKey} Push: ${issueDate} ===`);
 
   if (!APP_ID || !APP_SECRET || !RECEIVE_ID) {
     console.log('Missing env vars, skipping');
     process.exit(0);
   }
-
-  const today = new Date().toISOString().slice(0, 10);
-  console.log('Today (UTC):', today);
 
   if (!fs.existsSync(SCHEDULE_PATH)) {
     console.log('No schedule.json');
@@ -78,42 +97,64 @@ async function main() {
   }
 
   const sched = JSON.parse(fs.readFileSync(SCHEDULE_PATH, 'utf8'));
-  const batch = sched.batches[today];
+  const magSched = sched.magazines?.[magKey]?.[issueDate];
 
-  if (!batch) { console.log('No batch for today'); process.exit(0); }
-  if (batch.sent) { console.log('Already sent'); process.exit(0); }
-
-  console.log(`Day ${batch.dayNum} · Issue ${batch.issue} · ${batch.articles.length} articles`);
-
-  const epubPath = path.join(WORKSPACE, batch.file);
-  if (!fs.existsSync(epubPath)) {
-    console.error(`EPUB not found: ${epubPath}`);
-    process.exit(1);
+  if (!magSched) {
+    console.log(`No schedule entry for ${magKey} ${issueDate}`);
+    process.exit(0);
   }
 
-  const epubBuf = fs.readFileSync(epubPath);
-  const fileName = `TheEconomist.${batch.issue}.Day${batch.dayNum}.epub`;
-  console.log(`File: ${(epubBuf.length / 1024 / 1024).toFixed(2)} MB`);
+  if (magSched.sent) {
+    console.log('Already sent');
+    process.exit(0);
+  }
+
+  const chunks = magSched.chunks;
+  const displayName = DISPLAY_NAMES[magKey] || magKey;
+  console.log(`Issue: ${issueDate} · ${magSched.totalArticles} articles · ${chunks.length} chunks`);
 
   const token = await getToken();
   console.log('Token OK');
 
-  // 1. Upload EPUB file
-  const fileKey = await uploadFile(token, epubBuf, fileName);
-  console.log('Uploaded:', fileKey);
+  // 1. Send header message
+  const header = `📰 ${displayName} ${issueDate} · ${magSched.totalArticles}篇 · 拆分${chunks.length}个EPUB`;
+  await sendMsg(token, 'text', { text: header });
+  console.log('Header sent');
 
-  // 2. Send file message
-  await sendMsg(token, 'file', { file_key: fileKey });
-  console.log('File sent');
+  // 2. Send each chunk EPUB
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    const epubPath = path.join(WORKSPACE, chunk.file);
 
-  // 3. Send article list
-  const list = batch.articles.map((a, i) => `${i + 1}. ${a}`).join('\n');
-  await sendMsg(token, 'text', { text: `\u{1F4F0} The Economist ${batch.issue} \u00B7 Day ${batch.dayNum}\n\n${list}` });
-  console.log('List sent');
+    if (!fs.existsSync(epubPath)) {
+      console.error(`EPUB not found: ${epubPath}`);
+      continue;
+    }
 
-  // 4. Mark sent
-  batch.sent = true;
-  batch.sentAt = new Date().toISOString();
+    const epubBuf = fs.readFileSync(epubPath);
+    const fileName = `${displayName.replace(/ /g, '_')}.${issueDate}.Part${chunk.chunkNum}.epub`;
+    console.log(`Chunk ${chunk.chunkNum}: ${(epubBuf.length / 1024 / 1024).toFixed(2)} MB`);
+
+    const fileKey = await uploadFile(token, epubBuf, fileName);
+    console.log(`  Uploaded: ${fileKey}`);
+
+    await sendMsg(token, 'file', { file_key: fileKey });
+    console.log(`  File sent`);
+
+    // Send article list for this chunk
+    const list = chunk.articles.map((a, idx) => `${idx + 1}. ${a}`).join('\n');
+    await sendMsg(token, 'text', { text: `Part ${chunk.chunkNum} (${chunk.articles.length}篇)\n${list}` });
+    console.log(`  List sent`);
+
+    // Small delay to avoid rate limiting
+    if (i < chunks.length - 1) {
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }
+
+  // 3. Mark as sent
+  magSched.sent = true;
+  magSched.sentAt = new Date().toISOString();
   sched.lastUpdated = new Date().toISOString();
   fs.writeFileSync(SCHEDULE_PATH, JSON.stringify(sched, null, 2));
   console.log('Schedule updated');

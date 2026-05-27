@@ -1,0 +1,9 @@
+{
+  "name": "journal-weekly-delivery",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Weekly journal delivery via Feishu (multi-magazine)",
+  "dependencies": {
+    "jszip": "^3.10.1"
+  }
+}

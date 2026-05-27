@@ -1,4 +1,138 @@
 {
-  "magazines": {},
-  "lastUpdated": null
+  "magazines": {
+    "economist": {
+      "2026.05.23": {
+        "chunks": [
+          {
+            "chunkNum": 1,
+            "file": "data/issues/economist/2026.05.23/chunk-1.epub",
+            "articles": [
+              "Politics",
+              "Business",
+              "The weekly cartoon",
+              "SpaceX is capitalism on rocket fuel",
+              "American growth could be even better",
+              "Why NATO needs a Plan B",
+              "How to stop the Ebola outbreak",
+              "Lessons from the Premier League for Britain’s next premier",
+              "Do most baristas in Norway have a master’s degree?",
+              "The IPO wave will enshrine the AI gods’ control over the future"
+            ]
+          },
+          {
+            "chunkNum": 2,
+            "file": "data/issues/economist/2026.05.23/chunk-2.epub",
+            "articles": [
+              "SpaceX has initiated the biggest ever public offering",
+              "Even by Trumpian standards, a $1.8bn fund for friends is bad",
+              "Drained by war with Iran, America is stalling deliveries of arms to Europe",
+              "America’s sermons are becoming op-eds",
+              "Democratic primary voters chose a dicey candidate for Georgia governor",
+              "Europe’s first known language is alive in America’s West",
+              "Michigan’s Senate primary is a fight over the future of the Democratic Party",
+              "Leftist populism’s next big test",
+              "Donald Trump is pushing towards the end-game in Cuba",
+              "Months after electing a centrist president, Bolivia boils over"
+            ]
+          },
+          {
+            "chunkNum": 3,
+            "file": "data/issues/economist/2026.05.23/chunk-3.epub",
+            "articles": [
+              "Why Brazil’s government is obsessed with vaccines",
+              "Why Japan and China will struggle to end their feud",
+              "Is Donald Trump selling out Taiwan?",
+              "India’s loudest political fight obscures a more urgent one",
+              "India’s diplomats are hosting the world",
+              "Overseas Chinese risk losing their oldest institutions",
+              "Vladimir Putin’s turn with Xi Jinping",
+              "How China quietly helps Russia in Ukraine",
+              "What China can learn from Japan about escaping deflation",
+              "A new Ebola outbreak could be the worst in a decade"
+            ]
+          },
+          {
+            "chunkNum": 4,
+            "file": "data/issues/economist/2026.05.23/chunk-4.epub",
+            "articles": [
+              "How to save the safari",
+              "Is Binyamin Netanyahu facing his last stand?",
+              "Israel’s economy is booming",
+              "The mother of the world v the upstart",
+              "Donald Trump is still looking for a quick fix in Iran",
+              "Europe’s secret Plan B to replace NATO",
+              "Who are Europe’s newest troublemakers?",
+              "Real Madrid’s boss calls an election",
+              "How Europe is fighting for digital sovereignty",
+              "Bre-entry may be the next drama to grip the European Union"
+            ]
+          },
+          {
+            "chunkNum": 5,
+            "file": "data/issues/economist/2026.05.23/chunk-5.epub",
+            "articles": [
+              "In football, Britain has a world-beating industry",
+              "Why football attendance is booming outside the Premier League",
+              "The legal case hanging over Man City and the Premier League",
+              "Britain’s second-biggest city goes from dysfunctional to worse",
+              "Labour’s “battle for ideas” is a skirmish over small differences",
+              "Hate Labour? Vote Labour!",
+              "Home-schooling is on the rise around the world",
+              "Israel the lonely",
+              "Dope and glory: inside the Enhanced Games",
+              "AI super-apps are remaking China’s internet"
+            ]
+          },
+          {
+            "chunkNum": 6,
+            "file": "data/issues/economist/2026.05.23/chunk-6.epub",
+            "articles": [
+              "Google is dethroning OpenAI as the king of consumer AI",
+              "Chanel’s creative revival is paying off",
+              "The strange fate of Hard Rock Cafe",
+              "How Star Wars went from space opera to soap opera",
+              "A new mega-deal shows how AI has turned utilities into hot property",
+              "Can an Italian company disrupt Germany’s broken railway industry?",
+              "The benefits—and dangers—of optimism",
+              "How much is Donald Trump costing America’s economy?",
+              "The insurers on the hook for war in Iran",
+              "The other China shock"
+            ]
+          },
+          {
+            "chunkNum": 7,
+            "file": "data/issues/economist/2026.05.23/chunk-7.epub",
+            "articles": [
+              "Economics lessons from Home Depot",
+              "Where expat escapees from Dubai end up",
+              "Investors fear another surge in inflation",
+              "How should economists treat morality?",
+              "Breakthroughs for batteries could soon make them much better",
+              "The hantavirus outbreak is a tragedy—and a valuable data source",
+              "Could microscopic spheres of silica help cool the planet?",
+              "How well do anabolic steroids work?",
+              "A blind tasting revolutionised the wine world 50 years ago",
+              "The unlikely inspiration for North Korea’s first dictator"
+            ]
+          },
+          {
+            "chunkNum": 8,
+            "file": "data/issues/economist/2026.05.23/chunk-8.epub",
+            "articles": [
+              "Why the sex in “Rivals” is more than mere titillation",
+              "Not all Jews believed their future lay in Israel",
+              "Beware the typo—and other lessons of literary history",
+              "Gamified novels—known as LitRPG—are a winning format",
+              "Economic data, commodities and markets",
+              "Edith Eger danced for Josef Mengele"
+            ]
+          }
+        ],
+        "totalArticles": 76,
+        "fetchedAt": "2026-05-27T00:14:36.179Z",
+        "sent": false
+      }
+    }
+  },
+  "lastUpdated": "2026-05-27T00:14:36.179Z"
 }

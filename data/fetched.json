@@ -1,5 +1,11 @@
 {
-  "economist": [],
+  "economist": [
+    {
+      "date": "2026.05.23",
+      "fileName": "TheEconomist.2026.05.23.epub",
+      "fetchedAt": "2026-05-27T00:14:36.180Z"
+    }
+  ],
   "new_yorker": [],
   "atlantic": [],
   "wired": []

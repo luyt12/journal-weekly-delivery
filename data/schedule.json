@@ -130,9 +130,10 @@
         ],
         "totalArticles": 76,
         "fetchedAt": "2026-05-27T00:14:36.179Z",
-        "sent": false
+        "sent": true,
+        "sentAt": "2026-05-27T00:15:19.334Z"
       }
     }
   },
-  "lastUpdated": "2026-05-27T00:14:36.179Z"
+  "lastUpdated": "2026-05-27T00:15:19.334Z"
 }

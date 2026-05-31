@@ -132,8 +132,126 @@
         "fetchedAt": "2026-05-27T00:14:36.179Z",
         "sent": true,
         "sentAt": "2026-05-27T00:15:19.334Z"
+      },
+      "2026.05.30": {
+        "chunks": [
+          {
+            "chunkNum": 1,
+            "file": "data/issues/economist/2026.05.30/chunk-1.epub",
+            "articles": [
+              "Politics",
+              "Business",
+              "The weekly cartoon",
+              "Smart tech is making war a dumber choice",
+              "The imperial vision of Ethiopia’s Abiy Ahmed",
+              "How East Asia should respond to its China shock",
+              "Attacking Cuba would be a huge mistake",
+              "Why the world needs more franchises",
+              "Is overgrazing a problem for conservation?",
+              "A central banker’s lessons from a fragmented decade"
+            ]
+          },
+          {
+            "chunkNum": 2,
+            "file": "data/issues/economist/2026.05.30/chunk-2.epub",
+            "articles": [
+              "The dangerous delusion of modern warfare",
+              "How the Supreme Court both checks and empowers Donald Trump",
+              "Meet the Republicans defying Donald Trump",
+              "The Trump administration’s big move to limit legal immigration",
+              "The refugees Donald Trump wants are white and middle-class",
+              "Are Angelenos angry enough to elect an insurgent as mayor?",
+              "Why can’t Elon Musk do for politics what he’s done for industry?",
+              "Would American military action against Cuba work?",
+              "Could Donald Trump save Cuba’s economy?",
+              "Colombia’s pivotal, polarised election could not be tighter"
+            ]
+          },
+          {
+            "chunkNum": 3,
+            "file": "data/issues/economist/2026.05.30/chunk-3.epub",
+            "articles": [
+              "Centrists crying “Wolf!”",
+              "llliberal leaders in mainland South-East Asia revamp their regimes",
+              "Japan’s beloved Indian restaurants are under threat",
+              "Indonesia’s erratic president grabs the country’s commodity exports",
+              "War has not deterred Asian Muslims from the hajj",
+              "Narendra Modi gives India’s elite a taste of the bad old days",
+              "China’s world-beating solar industry is in turmoil",
+              "A coalmine explosion lays bare China’s two-speed economy",
+              "Bowing to online fury, China’s censors ban a prize-winning film",
+              "China’s diplomatic successes are broad but shallow"
+            ]
+          },
+          {
+            "chunkNum": 4,
+            "file": "data/issues/economist/2026.05.30/chunk-4.epub",
+            "articles": [
+              "Abiy Ahmed dreams of remaking Ethiopia in his image",
+              "Congo’s response to Ebola is late and chaotic",
+              "America and Iran are getting close to a deal. Or not",
+              "The Gulf war makes devastating oil spills more likely",
+              "Itamar Ben-Gvir has presided over horrific abuse in Israel’s prisons",
+              "Ukraine’s latest challenge is how to deal with hope",
+              "France’s Gen Z has fallen for a 74-year-old radical socialist",
+              "Leo’s first encyclical attacks technological messianism",
+              "Europe’s superyacht-builders hit choppy waters",
+              "How the boomers screwed Europe"
+            ]
+          },
+          {
+            "chunkNum": 5,
+            "file": "data/issues/economist/2026.05.30/chunk-5.epub",
+            "articles": [
+              "Britain has crushed immigration, and harmed itself",
+              "Immigration remains at the forefront of British voters’ minds",
+              "Alloyed shows how Britain hopes to make things in the future",
+              "Why Swindon is emerging as a centre for Britain’s drone industry",
+              "Britain is quietly de-Brexiting",
+              "How the Treat conquered politics",
+              "Franchising has quietly made countless Americans rich",
+              "Everything is going right for India’s richest man",
+              "The world’s top condom-maker is getting squeezed",
+              "Ferrari’s electric car: divisiveness is the point"
+            ]
+          },
+          {
+            "chunkNum": 6,
+            "file": "data/issues/economist/2026.05.30/chunk-6.epub",
+            "articles": [
+              "How should bosses talk about AI?",
+              "BP cares too much about feelings and not enough about performance",
+              "Japan, South Korea and Taiwan are suffering industrial rot",
+              "Crackdowns on financial secrecy aren’t hurting offshore finance",
+              "How to tax businesses in orbit and beyond",
+              "Kevin Warsh’s troublesome inflation in-tray",
+              "Giga-IPOs are a symptom of public markets’ giga-problem",
+              "Without fanfare, China is making rural migrants’ lives easier",
+              "Tomorrow’s medical sensors might come served with dinner",
+              "Too much time with colleagues can sour social interaction"
+            ]
+          },
+          {
+            "chunkNum": 7,
+            "file": "data/issues/economist/2026.05.30/chunk-7.epub",
+            "articles": [
+              "Mosquitoes seem to be getting over insect repellent",
+              "You probably don’t need extra electrolytes",
+              "The best books of 2026 so far",
+              "The tumult of Erdogan’s rule, seen from one district in Istanbul",
+              "The hard-hitting youngster sending cricket fans into a spin",
+              "Marilyn Monroe and the dead-star business",
+              "Beverly Gage, a Pulitzer-prizewinning historian, takes the wheel",
+              "Economic data, commodities and markets",
+              "Barney Frank always took the underdogs’ side"
+            ]
+          }
+        ],
+        "totalArticles": 69,
+        "fetchedAt": "2026-05-31T00:03:19.612Z",
+        "sent": false
       }
     }
   },
-  "lastUpdated": "2026-05-27T00:15:19.334Z"
+  "lastUpdated": "2026-05-31T00:03:19.613Z"
 }

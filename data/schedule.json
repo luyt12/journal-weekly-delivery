@@ -249,9 +249,10 @@
         ],
         "totalArticles": 69,
         "fetchedAt": "2026-05-31T00:03:19.612Z",
-        "sent": false
+        "sent": true,
+        "sentAt": "2026-05-31T00:03:56.086Z"
       }
     }
   },
-  "lastUpdated": "2026-05-31T00:03:19.613Z"
+  "lastUpdated": "2026-05-31T00:03:56.086Z"
 }
